@@ -16,7 +16,7 @@ class Game:
         self._danger_levels = self.generate_danger_levels()
         self.flags = set[Tuple[int, int]]()
         # self.marks = set[Tuple[int, int]]()
-        self.revealed = set[Tuple[int, int]]()
+        self.cleared = set[Tuple[int, int]]()
         self.status = 0 # 0 = active, -1 = lost, 1 = won
 
     def __str__(self):
@@ -45,7 +45,7 @@ class Game:
             for x in range(self.width):
                 if (x, y) in self.flags or (self.status == 1 and (x, y) in self.mines):
                     field += " 🚩"
-                elif (x, y) in self.revealed:
+                elif (x, y) in self.cleared:
                     if (x, y) in self.mines:
                         field += " 💣"
                     else:
@@ -127,8 +127,8 @@ class Game:
             row = self.get_row()
             col = self.get_col()
             point = (col, row)
-            if point in self.revealed:
-                print("That square has already been revealed!")
+            if point in self.cleared:
+                print("That square has already been cleared!")
             else:
                 return point
 
@@ -156,7 +156,7 @@ class Game:
             action = input("Select (C)lear or (F)lag/unflag: ").strip().lower()
             if action not in Game.ACTIONS:
                 print("Invalid action!")
-            if point in self.revealed:
+            if point in self.cleared:
                 print("That square is already cleared!")
             if action == "c" and point in self.flags:
                 input("You can't clear a flagged square!")
@@ -173,10 +173,10 @@ class Game:
                     self.flag(point)
 
     def recursively_clear(self, point:Point):
-        self.revealed.add(point)
+        self.cleared.add(point)
         if self._danger_levels[point] == 0:
             for neighbor in get_neighbors(point, self.width, self.height):
-                if neighbor not in self.revealed and neighbor not in self.flags:
+                if neighbor not in self.cleared and neighbor not in self.flags:
                     self.recursively_clear(neighbor)
 
     def flag(self, point:Point):
@@ -187,11 +187,11 @@ class Game:
 
     def evaluate_status(self):
         for mine in self.mines:
-            if mine in self.revealed:
+            if mine in self.cleared:
                 self.status = -1
         if self.status != -1:
             size = self.width * self.height
-            if len(self.revealed) + len(self.mines) == size:
+            if len(self.cleared) + len(self.mines) == size:
                 self.status = 1
 
 
