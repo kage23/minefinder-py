@@ -1,5 +1,5 @@
 # MINEFINDER
-#### Video Demo:  <URL HERE>
+#### Video Demo: <URL HERE>
 #### Description: A clone of the game Minesweeper
 
 Clone this repo and then run `python project.py` to play.
@@ -33,7 +33,7 @@ They were implemented outside of the class due to the following requirements of 
 
 > Your 3 required custom functions other than `main` must also be in `project.py` and defined at the same indentation level as `main` (i.e., not nested under any classes or functions).
 
-##### class Game
+##### class `Game`
 
 This is the representation of the game.
 
@@ -54,31 +54,48 @@ This is the representation of the game.
 - `Game.generate_rows_to_print` does what the name of the function says it does. Used by `Game.__str__`.
   - Contains a lot of fiddly logic about what to print in which circumstance, depending on game status and the individual square's flagged/cleared status.
   - It would have been simpler if I didn't use emojis, but since I did, I had to do a fair amount of careful whitespace adjustment so everything lines up properly.
-- `Game.generate_danger_levels`
-- `Game.gameplay_loop`
-- `Game.get_point`
-- `Game.get_row`
-- `Game.get_col`
-- `Game.get_action`
-- `Game.take_action`
-- `Game.recursively_clear`
-- `Game.flag`
-- `Game.evaluate_status`
+- `Game.generate_danger_levels` examines every square of the field, counts how many mines are adjacent to that field, and stores the result in a dict.
+  - If the square itself contains a mine, its danger level is set to `9` regardless of the number of adjacent mines.
+- `Game.gameplay_loop` is what the name on the tin says it is - the gameplay loop.
+  - This function clears the screen and prints the current game status, receives and applies the user's next move, and then evaluates the game's status.
+- `Game.get_point` handles receiving user input for the grid square they would like to select.
+  - It validates the user's selection - they cannot select a square that has already been cleared.
+- `Game.get_row` handles receiving user input for the row of the grid square they would like to select.
+  - It validates the user's selection against the height of the field.
+- `Game.get_col` handles receiving user input for the column of the grid square they would like to select.
+  - It validates the user's selection against the width of the field.
+- `Game.get_action` handles receiving user input for the action they would like to take.
+  - It accepts their selected grid square as a parameter.
+  - It validates their action selection to ensure that it's a valid action that can be taken on the selected square.
+- `Game.take_action` handles applying the user's action.
+  - It accepts the user's selected action and grid square as parameters.
+  - It calls either the `Game.recursively_clear` or `Game.flag` function, depending on the selected action.
+- `Game.recursively_clear` handles clearing the selected square, as well as any other squares that should be cleared from this action.
+  - It adds the selected square to the `Game.cleared` set.
+  - If the selected square has a danger level of `0`, it gets all adjacent neighbors of the square, and for each neighbor, if it's not already either cleared or flagged, recursively calls the `Game.recursively_clear` function on the neighbor.
+- `Game.flag` toggles the flagged status of the given square.
+  - If the square is in `Game.flags`, it removes it. Otherwise, it adds it.
+- `Game.evaluate_status` determines and sets the game's status. `-1` means the game has been lost, `0` means the game is active, and `1` means the game has been won.
+  - If any mine appears in the `Game.cleared` list, the game has been lost.
+  - If the `Game.cleared` list contains all non-mine squares (determined by comparing the size of the mines list and cleared list to the size of the entire field), the game has been won.
 
 ##### `generate_mine`
 
 This accepts `width:int` and `height:int` parameters, and returns an `(x, y)` tuple within the field indicated by the `width` and `height` parameters.
-Should be moved into the `Game` class.
+
+It should be moved into the `Game` class.
 
 ##### `get_neighbors`
 
 This accepts `point:Tuple[int, int]`, `width:int`, and `height:int` parameters, and returns a `list` of `(x, y)` tuples representing points that are adjacent to the given point, and within the field indicated by the `width` and `height` parameters.
-Should be moved into the `Game` class.
+
+It should be moved into the `Game` class.
 
 ##### `count_neighboring_mines`
 
 This accepts `point:Tuple[int, int]` and `game:Game` parameters, and returns an `int` representing how many neighbors of the given `point` have mines on them.
-Should be moved into the `Game` class.
+
+It should be moved into the `Game` class.
 
 ##### `clear_screen`
 
@@ -101,3 +118,6 @@ This accepts no parameters, and returns `None`. It initializes the game, runs th
 - replace most of this README documentation with docstrings in the actual code
 - implement "difficulty levels" instead of (or supplementing) direct setting of game parameters
 - implement a GUI - maybe [Pyxel](https://github.com/kitao/pyxel)?
+- implement some sort of persisting win/loss record
+- implement a timer
+- implement a high scores list
