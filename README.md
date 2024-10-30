@@ -1,5 +1,5 @@
 # MINEFINDER
-#### Video Demo: <URL HERE>
+#### Video Demo: https://youtu.be/CDIbYu6bWvA
 #### Description: A clone of the game Minesweeper
 
 Clone this repo and then run `python project.py` to play.
@@ -107,6 +107,7 @@ This accepts no parameters, and returns `None`. It initializes the game, runs th
 
 #### TODO:
 ##### Sooner:
+- unit tests for Game-internal functions
 - implement "first clear is always safe" feature!!!
 - implement Mark feature
 - allow user to set game parameters
@@ -115,6 +116,7 @@ This accepts no parameters, and returns `None`. It initializes the game, runs th
 
 ##### Later:
 - move Game class and various util functions into a separate file
+- refactor: create GridSquare class and within Game, store the field as a dict of (x, y) tuples to GridSquares
 - replace most of this README documentation with docstrings in the actual code
 - implement "difficulty levels" instead of (or supplementing) direct setting of game parameters
 - implement a GUI - maybe [Pyxel](https://github.com/kitao/pyxel)?

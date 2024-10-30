@@ -231,7 +231,7 @@ def clear_screen():
 
 
 def main():
-    game = Game(10, 10, 5)
+    game = Game(10, 10, 10)
     while game.status == 0:
         game.gameplay_loop()
     clear_screen()
