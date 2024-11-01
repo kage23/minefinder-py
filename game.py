@@ -6,6 +6,32 @@ from utils import (
     get_neighbors,
 )
 
+class GridSquare:
+    FLAG = " 🚩"
+    BOMB = " 💣"
+
+    def __init__(self):
+        self.has_mine = False
+        self.is_cleared = False
+        self.is_flagged = False
+        self.danger_level = 0
+        self.game_status = 0
+
+    def __str__(self):
+        if self.game_status == 0:
+            if self.is_flagged:
+                return GridSquare.FLAG
+            elif self.is_cleared:
+                return f" {NUMBER_EMOJIS[self.danger_level]} "
+            else:
+                return " · "
+        else:
+            if self.has_mine:
+                return GridSquare.BOMB if self.game_status == -1 else GridSquare.FLAG
+            else:
+                return f" {NUMBER_EMOJIS[self.danger_level]} "
+
+
 class Game:
     ACTIONS = ["c", "f"] # , "m"] # Clear, Flag, and Mark
 
