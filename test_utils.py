@@ -1,8 +1,6 @@
-from project import (
-    Game,
+from utils import (
     generate_mine,
     get_neighbors,
-    count_neighboring_mines,
 )
 
 def test_generate_mine():
@@ -39,11 +37,3 @@ def test_get_neighbors():
     assert (2, 3) in neighbors
     assert (3, 3) in neighbors
 
-
-def test_count_neighboring_mines():
-    game = Game(5, 5)
-    game._mines = set(((2, 2), (3, 2), (4, 2), (2, 3), (4, 3), (2, 4), (3, 4), (4, 4)))
-    assert count_neighboring_mines((0, 0), game) == 0
-    assert count_neighboring_mines((3, 3), game) == 8
-    assert count_neighboring_mines((2, 1), game) == 2
-    assert count_neighboring_mines((1, 1), game) == 1

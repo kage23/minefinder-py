@@ -1,10 +1,10 @@
-import os
-import random
-from typing import Tuple
-
-type Point = Tuple[int, int]
-
-NUMBER_EMOJIS = [" ", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
+from constants import NUMBER_EMOJIS
+from game_types import Point
+from utils import (
+    clear_screen,
+    generate_mine,
+    get_neighbors,
+)
 
 class Game:
     ACTIONS = ["c", "f"] # , "m"] # Clear, Flag, and Mark
@@ -14,9 +14,9 @@ class Game:
         self.height = height
         self.mines = mines_amount
         self._danger_levels = self.generate_danger_levels()
-        self.flags = set[Tuple[int, int]]()
-        # self.marks = set[Tuple[int, int]]()
-        self.cleared = set[Tuple[int, int]]()
+        self.flags = set[Point]()
+        # self.marks = set[Point]()
+        self.cleared = set[Point]()
         self.status = 0 # 0 = active, -1 = lost, 1 = won
 
     def __str__(self):
@@ -111,7 +111,7 @@ class Game:
                 if (x, y) in self.mines:
                     danger_levels[(x, y)] = 9
                 else:
-                    danger_levels[(x, y)] = count_neighboring_mines((x, y), self)
+                    danger_levels[(x, y)] = self.count_neighboring_mines((x, y))
         return danger_levels
 
     def gameplay_loop(self):
@@ -194,50 +194,7 @@ class Game:
             if len(self.cleared) + len(self.mines) == size:
                 self.status = 1
 
+    def count_neighboring_mines(self, point:Point) -> int:
+      neighbors = get_neighbors(point, self.width, self.height)
+      return len(list(filter(lambda p: p in self.mines, neighbors)))
 
-def generate_mine(width:int, height:int) -> Point:
-    x = random.randrange(0, width)
-    y = random.randrange(0, height)
-    return (x, y)
-
-
-def get_neighbors(point:Point, width:int, height:int) -> list[Point]:
-    x, y = point
-    directions = [
-        (0, 1), (0, -1), (1, 0), (-1, 0), # 4-way
-        (1, 1), (1, -1), (-1, 1), (-1, -1) # Diagonals
-    ]
-    return list(filter(
-        lambda n: 0 <= n[0] < width and 0 <= n[1] < height,
-        map(lambda d: (x + d[0], y + d[1]), directions)
-    ))
-
-
-def count_neighboring_mines(point:Point, game:Game) -> int:
-    neighbors = get_neighbors(point, game.width, game.height)
-    return len(list(filter(lambda p: p in game.mines, neighbors)))
-
-
-def clear_screen():
-    """
-    Clear the terminal. This was taken from https://www.geeksforgeeks.org/clear-screen-python/.
-    """
-    # For Windows
-    if os.name == "nt":
-        os.system("cls")
-    # For macOS and Linux
-    else:
-        os.system("clear")
-
-
-def main():
-    game = Game(10, 10, 10)
-    while game.status == 0:
-        game.gameplay_loop()
-    clear_screen()
-    print(game)
-    print("You win" if game.status == 1 else "You lose")
-
-
-if __name__ == "__main__":
-    main()

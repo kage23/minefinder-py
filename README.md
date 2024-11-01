@@ -2,7 +2,7 @@
 #### Video Demo: https://youtu.be/CDIbYu6bWvA
 #### Description: A clone of the game Minesweeper
 
-Clone this repo and then run `python project.py` to play.
+Clone this repo and then run `python minefinder.py` to play.
 
 You are presented with a field and tasked with discovering all of the mines in the field.
 Select a grid square, enter its row and column, and then select whether you would like to Flag or Clear that square.
@@ -17,21 +17,15 @@ You don't actually have to flag mine-containing squares to win, just clear all n
 
 #### Technical Breakdown
 
-The project consists of one main file, `project.py`, and one test file, `test_project.py`.
-`project.py` contains the following:
-- `Game` class.
-- `generate_mine` function.
-- `get_neighbors` function.
-- `count_neighboring_mines` function.
-- `clear_screen` function.
-- `main` function.
+The project consists of the following files:
 
-With the exception of `clear_screen` and `main`, all of these functions should probably actually be part of the `Game` class.
-They were implemented outside of the class due to the following requirements of the
-[CS50P Final Project](https://cs50.harvard.edu/python/2022/project/):
-> Your project must have a `main` function and three or more additional functions. At least three of those additional functions must be accompanied by tests that can be executed with `pytest`.
-
-> Your 3 required custom functions other than `main` must also be in `project.py` and defined at the same indentation level as `main` (i.e., not nested under any classes or functions).
+- `minefinder.py` is the main file of the project. It runs the game via the `main` function.
+- `game.py` contains the Game class.
+- `constants.py` and `game_types.py` each contain constants and types for the project.
+- `utils.py` contains a few utility functions used by the project.
+  - `generate_mine` function.
+  - `get_neighbors` function.
+  - `clear_screen` function.
 
 ##### class `Game`
 
@@ -78,24 +72,15 @@ This is the representation of the game.
 - `Game.evaluate_status` determines and sets the game's status. `-1` means the game has been lost, `0` means the game is active, and `1` means the game has been won.
   - If any mine appears in the `Game.cleared` list, the game has been lost.
   - If the `Game.cleared` list contains all non-mine squares (determined by comparing the size of the mines list and cleared list to the size of the entire field), the game has been won.
+- `Game.count_neighboring_mines` accepts a `point:Tuple[int, int]` parameter, and returns an `int` representing how many neighbors of the given `point` have mines on them.
 
 ##### `generate_mine`
 
 This accepts `width:int` and `height:int` parameters, and returns an `(x, y)` tuple within the field indicated by the `width` and `height` parameters.
 
-It should be moved into the `Game` class.
-
 ##### `get_neighbors`
 
 This accepts `point:Tuple[int, int]`, `width:int`, and `height:int` parameters, and returns a `list` of `(x, y)` tuples representing points that are adjacent to the given point, and within the field indicated by the `width` and `height` parameters.
-
-It should be moved into the `Game` class.
-
-##### `count_neighboring_mines`
-
-This accepts `point:Tuple[int, int]` and `game:Game` parameters, and returns an `int` representing how many neighbors of the given `point` have mines on them.
-
-It should be moved into the `Game` class.
 
 ##### `clear_screen`
 
