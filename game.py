@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from constants import NUMBER_EMOJIS
 from game_types import Point
 from utils import (
@@ -38,6 +40,7 @@ class Game:
     def __init__(self, width:int=10, height:int=10, mines_amount:int=10):
         self.width = width
         self.height = height
+        self.field = (width, height, mines_amount)
         self.mines = mines_amount
         self._danger_levels = self.generate_danger_levels()
         self.flags = set[Point]()
@@ -106,6 +109,31 @@ class Game:
         if height > 99:
             raise ValueError("That's too big!! :P")
         self._height = height
+
+    @property
+    def field(self):
+        return self._field
+
+    @field.setter
+    def field(self, params: Tuple[int, int, int]):
+        width, height, mines_amount = params
+
+        if mines_amount > (width * height) - 1:
+            raise ValueError("That's too many mines!")
+        if mines_amount < 1:
+            raise ValueError("C'mon, at least one mine!")
+
+        field: dict[Point, GridSquare] = {}
+        for x in range(width):
+            for y in range(height):
+                field[(x, y)] = GridSquare()
+
+        mine_list = set[Point]()
+        while len(mine_list) < mines_amount:
+            mine_list.add(generate_mine(self.width, self.height))
+        for mine in mine_list:
+            x, y = mine
+            field[(x, y)].has_mine = True
 
     @property
     def mines(self):
