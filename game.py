@@ -135,6 +135,15 @@ class Game:
             x, y = mine
             field[(x, y)].has_mine = True
 
+        for point, grid_square in field.items():
+            if grid_square.has_mine:
+                grid_square.danger_level = 9
+            else:
+              neighbors = get_neighbors(point, width, height)
+              grid_square.danger_level = len(list(filter(lambda n: field[n].has_mine, neighbors)))
+
+        self._field = field
+
     @property
     def mines(self):
         return self._mines
