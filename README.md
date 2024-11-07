@@ -20,12 +20,19 @@ You don't actually have to flag mine-containing squares to win, just clear all n
 The project consists of the following files:
 
 - `minefinder.py` is the main file of the project. It runs the game via the `main` function.
-- `game.py` contains the Game class.
-- `constants.py` and `game_types.py` each contain constants and types for the project.
+- `game.py` contains the GridSquare and Game classes.
+- `constants.py` contains constants for the project.
 - `utils.py` contains a few utility functions used by the project.
   - `generate_mine` function.
   - `get_neighbors` function.
   - `clear_screen` function.
+
+##### class `GridSquare`
+
+This is the representation of a single space in the game field.
+
+- `GridSquare.__init__` intializes it and sets default state values.
+- `GridSquare.__str__` prints it depending on its state.
 
 ##### class `Game`
 
@@ -33,54 +40,47 @@ This is the representation of the game.
 
 - `Game.__init__` initializes the game.
   - Accepts `width:int`, `height:int`, and `mines_amount:int` parameters. All three default to `10`.
-  - `width` and `height` are both set as protected properties of the `Game`, after performing some validation.
-  - `mines_amount` gets translated to the `Game.mines` property, which is a set of `(x, y)` tuples represting squares that have mines.
-    - The `mines` setter accepts the `mines_amount:int` param, validates that it's an acceptable number of mines (ie not more than the field can hold), and then uses the `generate_mine` util function to generate the designated number of mines.
-  - After generating mines, every square's "danger level" (number of adjacent mines) is calculated and stored.
-    - This could be done on an ad hoc basis as squares are revealed, but it seemed simpler and more efficient to pre-calculate it all.
-  - `Game.flags` and `Game.cleared` properties are initialized as empty sets. They will be utilized to store points that the user has flagged, and points that have been cleared, respectively.
+  - `width`, `height`, and `mines_amount` are all set as properties of the `Game`, after performing some validation.
+  - The game's `field` property gets set via the `_generate_field` method.
   - The game's `status` is initialized as active (`0`).
 - `Game.__str__` creates a string representation of the game, to be printed to the screen.
   - First, it prints the number of mines remaining (calculated as total number of mines, minus number of flags the user has placed).
   - Then, it generates the column numbers to print along the top of the game.
-  - Finally, it generates the individual rows to be printed.
-- `Game.get_column_numbers_to_print` does what the name of the function says it does. Used by `Game.__str__`.
-- `Game.generate_rows_to_print` does what the name of the function says it does. Used by `Game.__str__`.
-  - Contains a lot of fiddly logic about what to print in which circumstance, depending on game status and the individual square's flagged/cleared status.
-  - It would have been simpler if I didn't use emojis, but since I did, I had to do a fair amount of careful whitespace adjustment so everything lines up properly.
-- `Game.generate_danger_levels` examines every square of the field, counts how many mines are adjacent to that field, and stores the result in a dict.
-  - If the square itself contains a mine, its danger level is set to `9` regardless of the number of adjacent mines.
-- `Game.gameplay_loop` is what the name on the tin says it is - the gameplay loop.
-  - This function clears the screen and prints the current game status, receives and applies the user's next move, and then evaluates the game's status.
-- `Game.get_point` handles receiving user input for the grid square they would like to select.
+  - Finally, it generates the individual rows to be printed by accessing the `__str__` method of the grid squares in the field.
+- `Game._get_column_numbers_to_print` does what the name of the function says it does. Used by `Game.__str__`.
+- `Game._generate_field` creates the game field.
+  - It creates a grid square for every xy coordinate of the field, and sets them in a dict.
+  - It creates a list of squares to be mined, and then sets the `has_mine` property on the appropriate grid squares.
+  - It calculates and sets danger levels for every grid square.
+- `Game._gameplay_loop` is what the name on the tin says it is - the gameplay loop.
+  - It clears the screen and prints the current game status, receives and applies the user's next move, and then evaluates the game's status.
+- `Game._get_point` handles receiving user input for the grid square they would like to select.
   - It validates the user's selection - they cannot select a square that has already been cleared.
-- `Game.get_row` handles receiving user input for the row of the grid square they would like to select.
+- `Game._get_row` handles receiving user input for the row of the grid square they would like to select.
   - It validates the user's selection against the height of the field.
-- `Game.get_col` handles receiving user input for the column of the grid square they would like to select.
+- `Game._get_col` handles receiving user input for the column of the grid square they would like to select.
   - It validates the user's selection against the width of the field.
-- `Game.get_action` handles receiving user input for the action they would like to take.
+- `Game._get_action` handles receiving user input for the action they would like to take.
   - It accepts their selected grid square as a parameter.
   - It validates their action selection to ensure that it's a valid action that can be taken on the selected square.
-- `Game.take_action` handles applying the user's action.
+- `Game._take_action` handles applying the user's action.
   - It accepts the user's selected action and grid square as parameters.
-  - It calls either the `Game.recursively_clear` or `Game.flag` function, depending on the selected action.
-- `Game.recursively_clear` handles clearing the selected square, as well as any other squares that should be cleared from this action.
-  - It adds the selected square to the `Game.cleared` set.
-  - If the selected square has a danger level of `0`, it gets all adjacent neighbors of the square, and for each neighbor, if it's not already either cleared or flagged, recursively calls the `Game.recursively_clear` function on the neighbor.
-- `Game.flag` toggles the flagged status of the given square.
-  - If the square is in `Game.flags`, it removes it. Otherwise, it adds it.
-- `Game.evaluate_status` determines and sets the game's status. `-1` means the game has been lost, `0` means the game is active, and `1` means the game has been won.
-  - If any mine appears in the `Game.cleared` list, the game has been lost.
-  - If the `Game.cleared` list contains all non-mine squares (determined by comparing the size of the mines list and cleared list to the size of the entire field), the game has been won.
-- `Game.count_neighboring_mines` accepts a `point:Tuple[int, int]` parameter, and returns an `int` representing how many neighbors of the given `point` have mines on them.
+  - It calls either the `Game._recursively_clear` or `Game._flag` function, depending on the selected action.
+- `Game._recursively_clear` handles clearing the selected square, as well as any other squares that should be cleared from this action.
+  - It sets the `is_cleared` property of the selected square to `True`.
+  - If the selected square has a danger level of `0`, it gets all adjacent neighbors of the square, and for each neighbor, if it's not already either cleared or flagged, recursively calls the `Game._recursively_clear` function on the neighbor.
+- `Game._flag` toggles the `is_flagged` status of the grid square at the given point.
+- `Game._evaluate_status` determines and sets the game's status. `-1` means the game has been lost, `0` means the game is active, and `1` means the game has been won.
+  - If any mine has been cleared, the game has been lost.
+  - Otherwise, if the number of cleared squares plus the number of mines equals the size of the field, the game has been won.
 
 ##### `generate_mine`
 
-This accepts `width:int` and `height:int` parameters, and returns an `(x, y)` tuple within the field indicated by the `width` and `height` parameters.
+This accepts `width:int` and `height:int` parameters, and returns a string in the form of `f"{x},{y}"` within the field indicated by the `width` and `height` parameters.
 
 ##### `get_neighbors`
 
-This accepts `point:Tuple[int, int]`, `width:int`, and `height:int` parameters, and returns a `list` of `(x, y)` tuples representing points that are adjacent to the given point, and within the field indicated by the `width` and `height` parameters.
+This accepts `point:str`, `width:int`, and `height:int` parameters, and returns a `list` of `f"{x},{y}"` strings representing points that are adjacent to the given point, and within the field indicated by the `width` and `height` parameters.
 
 ##### `clear_screen`
 
@@ -92,7 +92,6 @@ This accepts no parameters, and returns `None`. It initializes the game, runs th
 
 #### TODO:
 ##### Sooner:
-- unit tests for Game-internal functions
 - implement "first clear is always safe" feature!!!
 - implement Mark feature
 - allow user to set game parameters
@@ -100,8 +99,6 @@ This accepts no parameters, and returns `None`. It initializes the game, runs th
   - In-app prompts if CLI params not provided
 
 ##### Later:
-- move Game class and various util functions into a separate file
-- refactor: create GridSquare class and within Game, store the field as a dict of (x, y) tuples to GridSquares
 - replace most of this README documentation with docstrings in the actual code
 - implement "difficulty levels" instead of (or supplementing) direct setting of game parameters
 - implement a GUI - maybe [Pyxel](https://github.com/kitao/pyxel)?

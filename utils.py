@@ -1,23 +1,23 @@
-import os
-import random
+import os, random
 
-from game_types import Point
-
-def generate_mine(width:int, height:int) -> Point:
+def generate_mine(width:int, height:int) -> str:
     x = random.randrange(0, width)
     y = random.randrange(0, height)
-    return (x, y)
+    return f"{x},{y}"
 
 
-def get_neighbors(point:Point, width:int, height:int) -> list[Point]:
-    x, y = point
+def get_neighbors(point:str, width:int, height:int) -> list[str]:
+    x, y = map(int, point.split(","))
     directions = [
         (0, 1), (0, -1), (1, 0), (-1, 0), # 4-way
         (1, 1), (1, -1), (-1, 1), (-1, -1) # Diagonals
     ]
-    return list(filter(
-        lambda n: 0 <= n[0] < width and 0 <= n[1] < height,
-        map(lambda d: (x + d[0], y + d[1]), directions)
+    return list(map(
+        lambda n: f"{n[0]},{n[1]}",
+        list(filter(
+          lambda n: 0 <= n[0] < width and 0 <= n[1] < height,
+          map(lambda d: (x + d[0], y + d[1]), directions)
+        ))
     ))
 
 
@@ -31,5 +31,3 @@ def clear_screen():
     # For macOS and Linux
     else:
         os.system("clear")
-
-
