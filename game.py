@@ -1,35 +1,9 @@
-from constants import NUMBER_EMOJIS
+from grid_square import GridSquare
 from utils import (
     clear_screen,
     generate_mine,
     get_neighbors,
 )
-
-class GridSquare:
-    FLAG = " 🚩"
-    BOMB = " 💣"
-
-    def __init__(self):
-        self.has_mine = False
-        self.is_cleared = False
-        self.is_flagged = False
-        self.danger_level = 0
-        self.game_status = 0
-
-    def __str__(self):
-        if self.game_status == 0:
-            if self.is_flagged:
-                return GridSquare.FLAG
-            elif self.is_cleared:
-                return f" {NUMBER_EMOJIS[self.danger_level]} "
-            else:
-                return " · "
-        else:
-            if self.has_mine:
-                return GridSquare.BOMB if self.game_status == -1 else GridSquare.FLAG
-            else:
-                return f" {NUMBER_EMOJIS[self.danger_level]} "
-
 
 class Game:
     ACTIONS = ["c", "f"] # , "m"] # Clear, Flag, and Mark
@@ -64,7 +38,7 @@ class Game:
                 rendered_field += f"{y + 1}  "
             for x in range(self.width):
                 grid_square = self.field[f"{x},{y}"]
-                rendered_field += grid_square.__str__()
+                rendered_field += grid_square.draw(self.status)
             rendered_field += "\n"
         return rendered_field
 
@@ -188,6 +162,3 @@ class Game:
             if cleared_count + self.mines_amount == size:
                 self.status = 1
 
-        # Update grid squares
-        for gs in self.field.values():
-            gs.game_status = self.status
