@@ -25,6 +25,7 @@ class Game:
             raise ValueError("C'mon, at least one mine!")
         self.mines_amount = mines_amount
         self.field = self._generate_field()
+        self._mines_set = False
         self.status = 0 # 0 = active, -1 = lost, 1 = won
 
     def __str__(self):
@@ -53,28 +54,30 @@ class Game:
         return field
 
     def _generate_field(self):
-        # Create grid squares
         field: dict[str, GridSquare] = {}
         for x in range(self.width):
             for y in range(self.height):
                 field[f"{x},{y}"] = GridSquare()
+        return field
 
-        # Set mines
+    def _set_mines(self, safe_point: str):
         mine_list = set[str]()
         while len(mine_list) < self.mines_amount:
-            mine_list.add(generate_mine(self.width, self.height))
+            mine = generate_mine(self.width, self.height)
+            if mine != safe_point:
+                mine_list.add(mine)
         for mine in mine_list:
-            field[mine].has_mine = True
+            self.field[mine].has_mine = True
+        self._mines_set = True
+        self._generate_danger_levels()
 
-        # Set danger levels
-        for point, grid_square in field.items():
+    def _generate_danger_levels(self):
+        for point, grid_square in self.field.items():
             if grid_square.has_mine:
                 grid_square.danger_level = 9
             else:
-              neighbors = get_neighbors(point, self.width, self.height)
-              grid_square.danger_level = len(list(filter(lambda n: field[n].has_mine, neighbors)))
-
-        return field
+                neighbors = get_neighbors(point, self.width, self.height)
+                grid_square.danger_level = len(list(filter(lambda n: self.field[n].has_mine, neighbors)))
 
     def _gameplay_loop(self):
         clear_screen()
@@ -129,6 +132,8 @@ class Game:
     def _take_action(self, action: str | None, point: str) -> None:
         match action:
             case "c":
+                if not self._mines_set:
+                    self._set_mines(point)
                 self._recursively_clear(point)
             case "f":
                 self._flag(point)
