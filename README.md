@@ -101,7 +101,6 @@ This accepts no parameters, and returns `None`. It initializes the game, runs th
 
 #### TODO:
 ##### Sooner:
-- implement "first clear is always safe" feature!!!
 - implement Mark feature
 - allow player to set game parameters
   - CLI params
