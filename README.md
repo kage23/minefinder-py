@@ -42,29 +42,38 @@ This is the representation of the game.
   - Accepts `width:int`, `height:int`, and `mines_amount:int` parameters. All three default to `10`.
   - `width`, `height`, and `mines_amount` are all set as properties of the `Game`, after performing some validation.
   - The game's `field` property gets set via the `_generate_field` method.
+    - The `field` initially does not have any mines in it.
+  - A `_mines_set` boolean parameter is initialized as `False` in the game.
   - The game's `status` is initialized as active (`0`).
 - `Game.__str__` creates a string representation of the game, to be printed to the screen.
-  - First, it prints the number of mines remaining (calculated as total number of mines, minus number of flags the user has placed).
+  - First, it prints the number of mines remaining (calculated as total number of mines, minus number of flags the player has placed).
   - Then, it generates the column numbers to print along the top of the game.
   - Finally, it generates the individual rows to be printed by accessing the `__str__` method of the grid squares in the field.
 - `Game._get_column_numbers_to_print` does what the name of the function says it does. Used by `Game.__str__`.
 - `Game._generate_field` creates the game field.
   - It creates a grid square for every xy coordinate of the field, and sets them in a dict.
-  - It creates a list of squares to be mined, and then sets the `has_mine` property on the appropriate grid squares.
-  - It calculates and sets danger levels for every grid square.
+- `Game._set_mines` adds mines to the game field.
+  - It accepts a `safe_point` str parameter representing the point that the player would like to clear.
+  - Using the game's `mines_amount` parameter, it generates a list of squares to be mined, ensuring that the passed safe point is not in the list, then sets the `has_mine` property on the appropriate grid squares in the game's `field` to `True`.
+  - It updates the game's `_mines_set` parameter to `True`.
+  - It calls the `_generate_danger_levels` function.
+- `Game._generate_danger_levels` calculates and sets danger levels for every grid square.
+  - It retrieves a list of neighbors of each square, and then counts how many of those neighbors have a mine, then sets the result as the square's danger level.
+  - If the square itself has a mine, its danger level is set to 9.
 - `Game._gameplay_loop` is what the name on the tin says it is - the gameplay loop.
-  - It clears the screen and prints the current game status, receives and applies the user's next move, and then evaluates the game's status.
-- `Game._get_point` handles receiving user input for the grid square they would like to select.
-  - It validates the user's selection - they cannot select a square that has already been cleared.
-- `Game._get_row` handles receiving user input for the row of the grid square they would like to select.
-  - It validates the user's selection against the height of the field.
-- `Game._get_col` handles receiving user input for the column of the grid square they would like to select.
-  - It validates the user's selection against the width of the field.
-- `Game._get_action` handles receiving user input for the action they would like to take.
+  - It clears the screen and prints the current game status, receives and applies the player's next move, and then evaluates the game's status.
+- `Game._get_point` handles receiving player input for the grid square they would like to select.
+  - It validates the player's selection - they cannot select a square that has already been cleared.
+- `Game._get_row` handles receiving player input for the row of the grid square they would like to select.
+  - It validates the player's selection against the height of the field.
+- `Game._get_col` handles receiving player input for the column of the grid square they would like to select.
+  - It validates the player's selection against the width of the field.
+- `Game._get_action` handles receiving player input for the action they would like to take.
   - It accepts their selected grid square as a parameter.
   - It validates their action selection to ensure that it's a valid action that can be taken on the selected square.
-- `Game._take_action` handles applying the user's action.
-  - It accepts the user's selected action and grid square as parameters.
+- `Game._take_action` handles applying the player's action.
+  - It accepts the player's selected action and grid square as parameters.
+  - If the player selected the `clear` action, and the game's `_mines_set` parameter is `False`, the `_set_mines` function is called, with the player's selected point passed in as the safe point.
   - It calls either the `Game._recursively_clear` or `Game._flag` function, depending on the selected action.
 - `Game._recursively_clear` handles clearing the selected square, as well as any other squares that should be cleared from this action.
   - It sets the `is_cleared` property of the selected square to `True`.
@@ -94,7 +103,7 @@ This accepts no parameters, and returns `None`. It initializes the game, runs th
 ##### Sooner:
 - implement "first clear is always safe" feature!!!
 - implement Mark feature
-- allow user to set game parameters
+- allow player to set game parameters
   - CLI params
   - In-app prompts if CLI params not provided
 
